@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace TechJobsConsole
@@ -35,7 +39,9 @@ namespace TechJobsConsole
                     values.Add(aValue);
                 }
             }
+
             return values;
+            
         }
 
         public static List<Dictionary<string, string>> FindByColumnAndValue(string column, string value)
@@ -49,13 +55,13 @@ namespace TechJobsConsole
             {
                 string aValue = row[column];
 
-                if (aValue.Contains(value))
+                if (aValue.ToLower().Contains(value.ToLower()))
                 {
                     jobs.Add(row);
                 }
             }
 
-            return jobs;
+            return jobs.OrderBy(x => x.ContainsKey("name")).ToList();
         }
 
         /*
@@ -139,9 +145,25 @@ namespace TechJobsConsole
             return rowValues.ToArray();
         }
 
-        public static string FindByValue(string input)
+        public static List<Dictionary<string, string>> FindByValue(string input)
         {
+            var searchResult = new List<Dictionary<string, string>>();
+            LoadData();
 
+            for (int i = 0; i < AllJobs.Count; i++)
+            {
+                foreach (var job in AllJobs[i])
+                {
+                    if (job.Value.ToLower().Contains(input))
+                    {
+                        searchResult.Add(AllJobs[i]);
+                    }
+                }
+            }
+
+            
+            return searchResult.OrderBy(x=>x.ContainsKey("name")).ToList();
+         
         }
     }
 }

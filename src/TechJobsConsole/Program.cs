@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TechJobsConsole
 {
@@ -41,7 +42,7 @@ namespace TechJobsConsole
                     else
                     {
                         List<string> results = JobData.FindAll(columnChoice);
-com
+
                         Console.WriteLine("\n*** All " + columnChoices[columnChoice] + " Values ***");
                         foreach (string item in results)
                         {
@@ -63,11 +64,22 @@ com
                     // Fetch results
                     if (columnChoice.Equals("all"))
                     {
-                        Console.WriteLine("Search all fields not yet implemented.");
+                        searchResults = JobData.FindByValue(searchTerm).OrderBy(x => x.ContainsKey("name")).ToList();
+
+                        for (int i = 0; i < searchResults.Count; i++)
+                        {
+                            Console.WriteLine("*****");
+
+                            foreach (var job in searchResults[i])
+                            {
+                                Console.WriteLine("{0}: {1}",job.Key, job.Value);
+                            }
+                            Console.WriteLine("*****\n\n");
+                        }
                     }
                     else
                     {
-                        searchResults = JobData.FindByColumnAndValue(columnChoice, searchTerm);
+                        searchResults = JobData.FindByColumnAndValue(columnChoice, searchTerm).OrderBy(x => x.ContainsKey("name")).ToList();
                         PrintJobs(searchResults);
                     }
                 }
@@ -81,7 +93,7 @@ com
         {
             int choiceIdx;
             bool isValidChoice = false;
-            string[] choiceKeys = new string[choices.Count];
+            string[] choiceKeys = new string[choices.Count];//Gets the count from input params and makes a string array of that length
 
             int i = 0;
             foreach (KeyValuePair<string, string> choice in choices)
@@ -99,8 +111,8 @@ com
                     Console.WriteLine(j + " - " + choices[choiceKeys[j]]);
                 }
 
-                string input = Console.ReadLine();
-                choiceIdx = int.Parse(input);
+                
+                choiceIdx = int.Parse(Validate.CheckIfEmpty(Console.ReadLine()));
 
                 if (choiceIdx < 0 || choiceIdx >= choiceKeys.Length)
                 {
@@ -124,11 +136,13 @@ com
                 return;
             }
 
-            for (int i = 0; i < someJobs.Count; i++)
-            {
+            var orderedJobs = someJobs.OrderBy(x => x.ContainsKey("name"));
+            List<Dictionary<string, string>> printList = new List<Dictionary<string, string>>(orderedJobs);
 
+            for (int i = 0; i < printList.Count; i++)
+            {
                 Console.WriteLine("*****");
-                foreach (var job in someJobs[i])
+                foreach (var job in printList[i])
                 {
                     Console.WriteLine("{0}: {1}", job.Key, job.Value);
                 }
